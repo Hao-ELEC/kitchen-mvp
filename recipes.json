@@ -58,7 +58,8 @@
   {"name":"青菜炒饭","ingredients":["米饭","青菜"],"seasonings":["盐","油","葱"]},
   {"name":"番茄鸡蛋面","ingredients":["面条","西红柿","鸡蛋"],"seasonings":["盐","油"]},
   {"name":"紫菜蛋花汤","ingredients":["紫菜","鸡蛋"],"seasonings":["盐","香油","葱"]}
-
+]
+[
   {"name":"蒜苔炒鸡蛋","ingredients":["蒜苔","鸡蛋"],"seasonings":["盐","油"]},
   {"name":"苦瓜炒鸡蛋","ingredients":["苦瓜","鸡蛋"],"seasonings":["盐","油"]},
   {"name":"胡萝卜炒鸡蛋","ingredients":["胡萝卜","鸡蛋"],"seasonings":["盐","油"]},

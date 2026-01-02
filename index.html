@@ -5,132 +5,404 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>厨房 MVP</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; }
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 16px; }
     input, button { font-size: 16px; padding: 10px; }
     input { width: 100%; box-sizing: border-box; margin: 8px 0; }
-    button { cursor: pointer; }
+    button { cursor: pointer; margin-right: 8px; }
     .card { border: 1px solid #ddd; border-radius: 10px; padding: 16px; margin-top: 16px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
     .result { font-size: 18px; font-weight: bold; margin-top: 8px; }
-    .hint { color: #666; font-size: 14px; }
+    .hint { color: #666; font-size: 14px; margin-top: 8px; }
+    ul { padding-left: 18px; }
+    li { margin: 8px 0; line-height: 1.4; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border: 1px solid #eee; padding: 8px; text-align: left; }
+    .small { font-size: 13px; color: #666; }
+    .pill { display: inline-block; padding: 2px 8px; border: 1px solid #ddd; border-radius: 999px; margin-left: 6px; font-size: 12px; color: #333; }
   </style>
 </head>
-<body>
-  <h1>厨房 MVP（报菜名）</h1>
 
+<body>
+  <h1>厨房 MVP（库存写入 + 智能推荐 + 扣库存）</h1>
+
+  <!-- 1) 写入库存 -->
   <div class="card">
-    <label for="ingredients">输入食材（用逗号分隔）</label>
-    <input id="ingredients" placeholder="例如：鸡蛋，洋葱" />
+    <h2>① 录入冰箱库存（写入“数据库”= 本地存储）</h2>
+
+    <div class="row">
+      <div>
+        <label>食材名称</label>
+        <input id="invName" placeholder="例如：鸡蛋" />
+      </div>
+      <div>
+        <label>数量（整数）</label>
+        <input id="invQty" placeholder="例如：6" />
+      </div>
+      <div>
+        <label>保质期（日期）</label>
+        <input id="invExp" type="date" />
+      </div>
+    </div>
+
+    <button id="addInvBtn">添加/更新库存</button>
+    <button id="clearInvBtn">清空库存</button>
+    <span class="small">提示：同名食材会合并数量，并用更近的到期日作为该食材到期日。</span>
+
+    <div id="invStatus" class="hint"></div>
+
+    <h3 style="margin-top:14px;">当前库存</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>食材</th>
+          <th>数量</th>
+          <th>到期日</th>
+          <th>剩余天数</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="invTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- 2) 推荐 -->
+  <div class="card">
+    <h2>② 生成推荐菜（基于库存 + 菜谱库）</h2>
+
+    <label for="ingredients">可选：额外输入食材（不用标点也行，用空格/逗号都行）</label>
+    <input id="ingredients" placeholder="例如：鸡蛋 洋葱（可不填，默认用库存）" />
+
     <button id="btn">生成推荐菜品</button>
 
     <div class="result" id="output"></div>
     <ul id="list"></ul>
     <div class="hint" id="hint"></div>
-
   </div>
 
   <script>
+    // ========== “数据库”：localStorage ==========
+    const INV_KEY = "kitchen_inventory_v1";
+
+    function loadInventory() {
+      try {
+        const raw = localStorage.getItem(INV_KEY);
+        if (!raw) return {};
+        return JSON.parse(raw);
+      } catch {
+        return {};
+      }
+    }
+
+    function saveInventory(invObj) {
+      localStorage.setItem(INV_KEY, JSON.stringify(invObj));
+    }
+
+    function daysLeft(expDateStr) {
+      if (!expDateStr) return 9999;
+      const today = new Date();
+      const exp = new Date(expDateStr + "T00:00:00");
+      const diffMs = exp.getTime() - new Date(today.toDateString()).getTime();
+      return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    }
+
+    function renderInventoryTable() {
+      const inv = loadInventory();
+      const body = document.getElementById("invTableBody");
+      body.innerHTML = "";
+
+      const names = Object.keys(inv).sort((a, b) => a.localeCompare(b, "zh"));
+      if (names.length === 0) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="5" class="small">暂无库存。请先录入食材/数量/保质期。</td>`;
+        body.appendChild(tr);
+        return;
+      }
+
+      names.forEach(name => {
+        const item = inv[name];
+        const dl = daysLeft(item.expiresAt);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${name}</td>
+          <td>${item.qty}</td>
+          <td>${item.expiresAt || "-"}</td>
+          <td>${dl === 9999 ? "-" : dl}</td>
+          <td><button data-del="${name}">删除</button></td>
+        `;
+        body.appendChild(tr);
+      });
+
+      // delete handlers
+      body.querySelectorAll("button[data-del]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const name = btn.getAttribute("data-del");
+          const inv2 = loadInventory();
+          delete inv2[name];
+          saveInventory(inv2);
+          renderInventoryTable();
+        });
+      });
+    }
+
+    // ========== 输入解析（允许无标点） ==========
     function normalizeInput(text) {
       return text
-        // 去掉数字
         .replace(/[0-9]/g, "")
-        // 把“和”“与”也当分隔
         .replace(/和|与/g, " ")
-        // 把所有非中文字符变成空格
         .replace(/[^\u4e00-\u9fa5]/g, " ")
-        // 按空格切分
         .split(" ")
-        // 去掉前后空格
         .map(s => s.trim())
-        // 去掉空字符串
         .filter(Boolean);
     }
 
-
+    // ========== 菜谱读取 ==========
     async function loadRecipes() {
       const res = await fetch("./recipes.json");
       if (!res.ok) throw new Error("无法读取 recipes.json");
       return await res.json();
     }
 
-    function matchRecipe(recipe, userIngredients) {
-      const userSet = new Set(userIngredients);
-      const missing = recipe.ingredients.filter(ing => !userSet.has(ing));
-      return { missing, missingCount: missing.length };
+    // ========== 推荐评分规则 ==========
+    // 你的原则：
+    // 1) 临近保质期优先
+    // 2) 数量多优先
+    // 3) 食材少（简单）优先
+    //
+    // 实现方法（MVP）：
+    // - 对每道候选菜，计算：
+    //   earliestExpiryDaysUsed：该菜使用到的库存食材中，最小剩余天数（越小越优先）
+    //   totalQtyUsed: 该菜使用到的库存食材数量合计（越大越优先）
+    //   recipeIngredientCount: 菜的主食材数（越小越优先）
+    //
+    // 排序：earliestExpiryDaysUsed ↑, totalQtyUsed ↓, recipeIngredientCount ↑
+    function scoreRecipe(recipe, inv, extraSet) {
+      // 这道菜“用到的食材”= recipe.ingredients
+      // 可用食材集合 = 库存有 qty>0 的 + 额外输入
+      const available = new Set(Object.keys(inv).filter(k => inv[k].qty > 0));
+      for (const x of extraSet) available.add(x);
+
+      const missing = recipe.ingredients.filter(ing => !available.has(ing));
+      const missingCount = missing.length;
+
+      // 用到的库存食材（仅库存部分，用于算保质期/数量）
+      const usedFromInv = recipe.ingredients.filter(ing => inv[ing] && inv[ing].qty > 0);
+
+      let earliest = 9999;
+      let qtySum = 0;
+      usedFromInv.forEach(ing => {
+        earliest = Math.min(earliest, daysLeft(inv[ing].expiresAt));
+        qtySum += Number(inv[ing].qty || 0);
+      });
+
+      // 如果完全没用到库存，只用额外输入（例如你手动输入了某食材但库存没录），
+      // 那么 earliest/qtySum 设为不优先（MVP策略）
+      if (usedFromInv.length === 0) {
+        earliest = 9999;
+        qtySum = 0;
+      }
+
+      return {
+        missing,
+        missingCount,
+        usedFromInv,
+        earliestExpiryDaysUsed: earliest,
+        totalQtyUsed: qtySum,
+        recipeIngredientCount: recipe.ingredients.length
+      };
     }
 
+    // ========== 扣库存（点击菜品后） ==========
+    function consumeRecipe(recipe) {
+      const inv = loadInventory();
+
+      // 找出需要扣减的“库存食材”（只对库存里存在的食材扣）
+      const need = recipe.ingredients.filter(ing => inv[ing] && inv[ing].qty > 0);
+      if (need.length === 0) {
+        alert("这道菜没有可扣减的库存食材（可能你没录入库存）。");
+        return;
+      }
+
+      // 简化：默认每种食材消耗 1 单位；用户可逐个确认/修改
+      const consumePlan = {};
+      for (const ing of need) {
+        const max = inv[ing].qty;
+        const input = prompt(`【${recipe.name}】\n请输入要消耗的【${ing}】数量（库存剩余 ${max}）：`, "1");
+        if (input === null) return; // 用户取消
+        const n = parseInt(input, 10);
+        if (!Number.isFinite(n) || n <= 0) {
+          alert("数量必须是正整数。已取消扣减。");
+          return;
+        }
+        if (n > max) {
+          alert(`【${ing}】消耗数量不能超过库存（${max}）。已取消扣减。`);
+          return;
+        }
+        consumePlan[ing] = n;
+      }
+
+      // 扣减
+      for (const ing of Object.keys(consumePlan)) {
+        inv[ing].qty -= consumePlan[ing];
+        if (inv[ing].qty < 0) inv[ing].qty = 0;
+      }
+      saveInventory(inv);
+
+      renderInventoryTable();
+
+      // 显示剩余
+      const lines = Object.keys(consumePlan).map(ing => `- ${ing}：消耗 ${consumePlan[ing]}，剩余 ${inv[ing].qty}`);
+      alert(`扣减完成：\n${lines.join("\n")}`);
+    }
+
+    // ========== 事件：添加库存 ==========
+    document.getElementById("addInvBtn").addEventListener("click", () => {
+      const name = document.getElementById("invName").value.trim();
+      const qtyStr = document.getElementById("invQty").value.trim();
+      const exp = document.getElementById("invExp").value;
+
+      const status = document.getElementById("invStatus");
+      status.textContent = "";
+
+      if (!name) { status.textContent = "请输入食材名称。"; return; }
+      const qty = parseInt(qtyStr, 10);
+      if (!Number.isFinite(qty) || qty <= 0) { status.textContent = "数量必须是正整数。"; return; }
+
+      const inv = loadInventory();
+
+      if (!inv[name]) {
+        inv[name] = { qty, expiresAt: exp || "" };
+      } else {
+        // 合并数量
+        inv[name].qty = Number(inv[name].qty || 0) + qty;
+
+        // 到期日取更近的（如果两者都有）
+        if (exp && inv[name].expiresAt) {
+          const d1 = daysLeft(inv[name].expiresAt);
+          const d2 = daysLeft(exp);
+          inv[name].expiresAt = (d2 < d1) ? exp : inv[name].expiresAt;
+        } else if (exp && !inv[name].expiresAt) {
+          inv[name].expiresAt = exp;
+        }
+      }
+
+      saveInventory(inv);
+      renderInventoryTable();
+
+      status.textContent = `已写入：${name} +${qty}（到期：${exp || "未填"}）`;
+      document.getElementById("invName").value = "";
+      document.getElementById("invQty").value = "";
+      document.getElementById("invExp").value = "";
+    });
+
+    document.getElementById("clearInvBtn").addEventListener("click", () => {
+      if (!confirm("确定要清空库存吗？")) return;
+      localStorage.removeItem(INV_KEY);
+      renderInventoryTable();
+      document.getElementById("invStatus").textContent = "库存已清空。";
+    });
+
+    // ========== 事件：生成推荐 ==========
     document.getElementById("btn").addEventListener("click", async () => {
       const output = document.getElementById("output");
       const hint = document.getElementById("hint");
+      const list = document.getElementById("list");
       output.textContent = "处理中...";
       hint.textContent = "";
+      list.innerHTML = "";
+
+      const inv = loadInventory();
+      const invSet = new Set(Object.keys(inv).filter(k => inv[k].qty > 0));
 
       const inputText = document.getElementById("ingredients").value;
-      const userIngredients = normalizeInput(inputText);
+      const extra = new Set(normalizeInput(inputText));
 
-      if (userIngredients.length === 0) {
+      // 可用食材为空则提示
+      if (invSet.size === 0 && extra.size === 0) {
         output.textContent = "";
-        hint.textContent = "请先输入食材，例如：鸡蛋，洋葱";
+        hint.textContent = "请先录入库存，或在上方输入额外食材。";
         return;
       }
 
       try {
         const recipes = await loadRecipes();
-        const userSet = new Set(userIngredients);
 
+        // 规则：允许缺 1 个主食材也推荐（沿用你现在的策略），但这里改成“基于库存/额外输入”
         const candidates = recipes
           .map(r => {
-            const m = matchRecipe(r, userIngredients);
-            // 计算“这道菜用了你输入的哪些食材”
-            const usedFromInput = r.ingredients.filter(ing => userSet.has(ing));
-            return {
-              recipe: r,
-              ...m,
-              usedFromInput,
-              usedCount: usedFromInput.length
-            };
+            const s = scoreRecipe(r, inv, extra);
+            // 必须至少用到一个“可用食材”（否则是无关菜）
+            const available = new Set([...invSet, ...extra]);
+            const usedFromAvailable = r.ingredients.filter(ing => available.has(ing));
+            return { recipe: r, ...s, usedFromAvailable, usedCount: usedFromAvailable.length };
           })
-          // 规则1：必须至少用到一个你输入的食材
           .filter(x => x.usedCount >= 1)
-          // 规则2：只保留缺0或缺1
-          .filter(x => x.missingCount <= 1)
-          // 排序：先缺得少，再用得多
-          .sort((a, b) => (a.missingCount - b.missingCount) || (b.usedCount - a.usedCount));
+          .filter(x => x.missingCount <= 1);
 
         if (candidates.length === 0) {
-          output.textContent = "未找到匹配菜品";
-          hint.textContent = "当前规则：只推荐缺0或缺1个食材的菜。你可以输入更多食材，或扩充菜谱库。";
+          output.textContent = "未找到可推荐菜品";
+          hint.textContent = "规则：只推荐缺 0 或缺 1 个主食材，且必须用到你现有的食材。";
           return;
         }
 
-        const list = document.getElementById("list");
-        list.innerHTML = ""; // 先清空旧结果
+        // 按你的三条原则排序
+        candidates.sort((a, b) => {
+          // 先：缺得少（缺0优先），保证“能做”优先
+          if (a.missingCount !== b.missingCount) return a.missingCount - b.missingCount;
+          // 1) 临近保质期优先（earliest 越小越靠前）
+          if (a.earliestExpiryDaysUsed !== b.earliestExpiryDaysUsed) return a.earliestExpiryDaysUsed - b.earliestExpiryDaysUsed;
+          // 2) 数量多优先（qtySum 越大越靠前）
+          if (a.totalQtyUsed !== b.totalQtyUsed) return b.totalQtyUsed - a.totalQtyUsed;
+          // 3) 食材少优先（越简单越靠前）
+          return a.recipeIngredientCount - b.recipeIngredientCount;
+        });
 
         const top5 = candidates.slice(0, 5);
-
-        output.textContent = "推荐菜品（最多 5 个）：";
+        output.textContent = "推荐菜品（点击可扣库存，最多 5 个）：";
 
         top5.forEach((item, index) => {
           const li = document.createElement("li");
-          const name = item.recipe.name;
-          
-          const usedText = `用到：${item.usedFromInput.join("、")}`;
-          if (item.missing.length === 0) {
-            li.textContent = `${index + 1}. ${name} ✅（食材齐全；${usedText}）`;
-          } else {
-            li.textContent = `${index + 1}. ${name} ⚠️ 缺：${item.missing[0]}（${usedText}）`;
-          }
-          
+
+          const r = item.recipe;
+          const missingText = item.missingCount === 0 ? "✅ 食材齐全" : `⚠️ 缺：${item.missing[0]}`;
+          const expiryText = (item.earliestExpiryDaysUsed === 9999) ? "到期：-" : `最早到期：${item.earliestExpiryDaysUsed} 天`;
+          const qtyText = `库存数量优先值：${item.totalQtyUsed}`;
+          const simpleText = `主食材数：${r.ingredients.length}`;
+
+          // 输出 name, ingredients, seasonings
+          li.innerHTML = `
+            <div>
+              <strong>${index + 1}. ${r.name}</strong>
+              <span class="pill">${missingText}</span>
+              <span class="pill">${expiryText}</span>
+              <span class="pill">${qtyText}</span>
+              <span class="pill">${simpleText}</span>
+            </div>
+            <div class="small"><b>Ingredients</b>：${r.ingredients.join("、")}</div>
+            <div class="small"><b>Seasonings</b>：${(r.seasonings || []).join("、")}</div>
+          `;
+
+          // 点击扣库存（仅当食材齐全时更合理；你也可以允许缺1的先提示）
+          li.style.cursor = "pointer";
+          li.addEventListener("click", () => {
+            if (item.missingCount > 0) {
+              alert(`这道菜还缺：${item.missing[0]}。\n建议先补齐再扣库存。`);
+              return;
+            }
+            consumeRecipe(r);
+          });
+
           list.appendChild(li);
         });
 
-        
-        hint.textContent = "规则：优先推荐食材齐全的，其次推荐只缺 1 个食材的菜。";
-
+        hint.textContent = "排序原则：先能做（缺0优先），再按最早到期↑、数量优先↓、主食材数↑。点击菜名可扣库存并显示剩余。";
       } catch (e) {
         output.textContent = "出错了";
         hint.textContent = e.message;
       }
     });
+
+    // 初始渲染库存
+    renderInventoryTable();
   </script>
 </body>
 </html>

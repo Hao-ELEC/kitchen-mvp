@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>厨房 MVP</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; }
+    input, button { font-size: 16px; padding: 10px; }
+    input { width: 100%; box-sizing: border-box; margin: 8px 0; }
+    button { cursor: pointer; }
+    .card { border: 1px solid #ddd; border-radius: 10px; padding: 16px; margin-top: 16px; }
+    .result { font-size: 18px; font-weight: bold; margin-top: 8px; }
+    .hint { color: #666; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>厨房 MVP（最小版本）</h1>
+
+  <div class="card">
+    <label for="ingredients">输入食材（用逗号分隔）</label>
+    <input id="ingredients" placeholder="例如：鸡蛋，洋葱" />
+    <button id="btn">生成推荐菜品</button>
+
+    <div class="result" id="output"></div>
+    <div class="hint" id="hint"></div>
+  </div>
+
+  <script>
+    function normalizeInput(text) {
+      // 支持中文逗号、英文逗号、顿号、空格
+      return text
+        .replace(/，/g, ",")
+        .replace(/、/g, ",")
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean);
+    }
+
+    async function loadRecipes() {
+      const res = await fetch("./recipes.json");
+      if (!res.ok) throw new Error("无法读取 recipes.json");
+      return await res.json();
+    }
+
+    function canMake(recipe, userIngredients) {
+      const userSet = new Set(userIngredients);
+      return recipe.ingredients.every(ing => userSet.has(ing));
+    }
+
+    document.getElementById("btn").addEventListener("click", async () => {
+      const output = document.getElementById("output");
+      const hint = document.getElementById("hint");
+      output.textContent = "处理中...";
+      hint.textContent = "";
+
+      const inputText = document.getElementById("ingredients").value;
+      const userIngredients = normalizeInput(inputText);
+
+      if (userIngredients.length === 0) {
+        output.textContent = "";
+        hint.textContent = "请先输入食材，例如：鸡蛋，洋葱";
+        return;
+      }
+
+      try {
+        const recipes = await loadRecipes();
+        const matches = recipes.filter(r => canMake(r, userIngredients));
+
+        if (matches.length === 0) {
+          output.textContent = "未找到匹配菜品";
+          hint.textContent = "当前数据库只有少量菜谱。你可以在 recipes.json 里添加更多。";
+          return;
+        }
+
+        // MVP：找到第一个匹配就输出
+        output.textContent = matches[0].name;
+        hint.textContent = `已匹配：${matches[0].ingredients.join(" + ")}`;
+      } catch (e) {
+        output.textContent = "出错了";
+        hint.textContent = e.message;
+      }
+    });
+  </script>
+</body>
+</html>

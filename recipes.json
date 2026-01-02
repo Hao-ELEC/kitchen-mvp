@@ -1,6 +1,61 @@
 [
-  {
-    "name": "洋葱炒鸡蛋",
-    "ingredients": ["鸡蛋", "洋葱"]
-  }
+  {"name":"洋葱炒鸡蛋","ingredients":["鸡蛋","洋葱"],"seasonings":["盐","油"]},
+  {"name":"西红柿炒鸡蛋","ingredients":["鸡蛋","西红柿"],"seasonings":["盐","糖","油"]},
+  {"name":"青椒炒鸡蛋","ingredients":["鸡蛋","青椒"],"seasonings":["盐","油"]},
+  {"name":"韭菜炒鸡蛋","ingredients":["鸡蛋","韭菜"],"seasonings":["盐","油"]},
+  {"name":"黄瓜炒鸡蛋","ingredients":["鸡蛋","黄瓜"],"seasonings":["盐","油"]},
+
+  {"name":"蒜蓉西兰花","ingredients":["西兰花","大蒜"],"seasonings":["盐","油"]},
+  {"name":"清炒小白菜","ingredients":["小白菜"],"seasonings":["盐","油","蒜"]},
+  {"name":"清炒上海青","ingredients":["上海青"],"seasonings":["盐","油","蒜"]},
+  {"name":"清炒油麦菜","ingredients":["油麦菜"],"seasonings":["盐","油","蒜"]},
+  {"name":"清炒空心菜","ingredients":["空心菜","蒜"],"seasonings":["盐","油"]},
+
+  {"name":"蒜蓉生菜","ingredients":["生菜","蒜"],"seasonings":["盐","油"]},
+  {"name":"清炒菠菜","ingredients":["菠菜"],"seasonings":["盐","油","蒜"]},
+  {"name":"清炒西葫芦","ingredients":["西葫芦"],"seasonings":["盐","油","蒜"]},
+  {"name":"清炒四季豆","ingredients":["四季豆","蒜"],"seasonings":["盐","油"]},
+  {"name":"清炒豆芽","ingredients":["豆芽","蒜"],"seasonings":["盐","油"]},
+
+  {"name":"香菇青菜","ingredients":["香菇","青菜"],"seasonings":["盐","油","蒜"]},
+  {"name":"胡萝卜炒土豆丝","ingredients":["土豆","胡萝卜"],"seasonings":["盐","醋","油"]},
+  {"name":"清炒土豆丝","ingredients":["土豆"],"seasonings":["盐","醋","油"]},
+  {"name":"清炒藕片","ingredients":["莲藕"],"seasonings":["盐","醋","油"]},
+  {"name":"清炒花菜","ingredients":["花菜","蒜"],"seasonings":["盐","油"]},
+
+  {"name":"蒜蓉茄子","ingredients":["茄子","蒜"],"seasonings":["盐","酱油","油"]},
+  {"name":"青椒土豆片","ingredients":["土豆","青椒"],"seasonings":["盐","油"]},
+  {"name":"地三鲜","ingredients":["土豆","茄子","青椒"],"seasonings":["盐","酱油","蒜","油"]},
+  {"name":"蒜蓉娃娃菜","ingredients":["娃娃菜","蒜"],"seasonings":["盐","油"]},
+  {"name":"蒜蓉菜心","ingredients":["菜心","蒜"],"seasonings":["盐","油"]},
+
+  {"name":"豆腐汤","ingredients":["豆腐"],"seasonings":["盐","葱"]},
+  {"name":"番茄豆腐汤","ingredients":["豆腐","西红柿"],"seasonings":["盐","葱"]},
+  {"name":"白菜豆腐汤","ingredients":["白菜","豆腐"],"seasonings":["盐","葱"]},
+  {"name":"麻婆豆腐（家常）","ingredients":["豆腐","牛肉末"],"seasonings":["豆瓣酱","花椒","蒜","盐","油"]},
+  {"name":"家常煎豆腐","ingredients":["豆腐"],"seasonings":["盐","油","酱油"]},
+
+  {"name":"葱烧豆腐","ingredients":["豆腐","葱"],"seasonings":["盐","酱油","油"]},
+  {"name":"青椒炒豆腐干","ingredients":["豆腐干","青椒"],"seasonings":["盐","油","酱油"]},
+  {"name":"芹菜炒香干","ingredients":["芹菜","豆腐干"],"seasonings":["盐","油"]},
+  {"name":"西芹炒胡萝卜","ingredients":["西芹","胡萝卜"],"seasonings":["盐","油"]},
+  {"name":"芹菜炒肉","ingredients":["芹菜","猪肉"],"seasonings":["盐","酱油","油","姜"]},
+
+  {"name":"青椒炒肉","ingredients":["青椒","猪肉"],"seasonings":["盐","酱油","油","蒜"]},
+  {"name":"洋葱炒肉","ingredients":["洋葱","猪肉"],"seasonings":["盐","酱油","油"]},
+  {"name":"土豆烧肉","ingredients":["土豆","猪肉"],"seasonings":["盐","酱油","葱","姜","油"]},
+  {"name":"番茄炖牛腩（简版）","ingredients":["牛腩","西红柿"],"seasonings":["盐","酱油","葱","姜"]},
+  {"name":"可乐鸡翅","ingredients":["鸡翅","可乐"],"seasonings":["酱油","姜"]},
+
+  {"name":"葱姜炒鸡丁","ingredients":["鸡胸肉","葱","姜"],"seasonings":["盐","酱油","油"]},
+  {"name":"鸡胸肉炒西兰花","ingredients":["鸡胸肉","西兰花"],"seasonings":["盐","油","蒜"]},
+  {"name":"蒜香虾仁","ingredients":["虾仁","蒜"],"seasonings":["盐","黑胡椒","油"]},
+  {"name":"虾仁炒鸡蛋","ingredients":["虾仁","鸡蛋"],"seasonings":["盐","油"]},
+  {"name":"清蒸鱼（基础）","ingredients":["鱼","葱","姜"],"seasonings":["盐","蒸鱼豉油"]},
+
+  {"name":"葱油拌面（简版）","ingredients":["面条","葱"],"seasonings":["酱油","油","糖"]},
+  {"name":"蛋炒饭","ingredients":["米饭","鸡蛋"],"seasonings":["盐","葱","油"]},
+  {"name":"青菜炒饭","ingredients":["米饭","青菜"],"seasonings":["盐","油","葱"]},
+  {"name":"番茄鸡蛋面","ingredients":["面条","西红柿","鸡蛋"],"seasonings":["盐","油"]},
+  {"name":"紫菜蛋花汤","ingredients":["紫菜","鸡蛋"],"seasonings":["盐","香油","葱"]}
 ]

@@ -58,4 +58,52 @@
   {"name":"青菜炒饭","ingredients":["米饭","青菜"],"seasonings":["盐","油","葱"]},
   {"name":"番茄鸡蛋面","ingredients":["面条","西红柿","鸡蛋"],"seasonings":["盐","油"]},
   {"name":"紫菜蛋花汤","ingredients":["紫菜","鸡蛋"],"seasonings":["盐","香油","葱"]}
+
+  {"name":"蒜苔炒鸡蛋","ingredients":["蒜苔","鸡蛋"],"seasonings":["盐","油"]},
+  {"name":"苦瓜炒鸡蛋","ingredients":["苦瓜","鸡蛋"],"seasonings":["盐","油"]},
+  {"name":"胡萝卜炒鸡蛋","ingredients":["胡萝卜","鸡蛋"],"seasonings":["盐","油"]},
+  {"name":"玉米炒鸡蛋","ingredients":["玉米","鸡蛋"],"seasonings":["盐","油"]},
+  {"name":"蘑菇炒鸡蛋","ingredients":["蘑菇","鸡蛋"],"seasonings":["盐","油"]},
+
+  {"name":"蒜蓉菜花","ingredients":["菜花","蒜"],"seasonings":["盐","油"]},
+  {"name":"清炒茼蒿","ingredients":["茼蒿","蒜"],"seasonings":["盐","油"]},
+  {"name":"清炒芦笋","ingredients":["芦笋","蒜"],"seasonings":["盐","油"]},
+  {"name":"清炒西洋菜","ingredients":["西洋菜","蒜"],"seasonings":["盐","油"]},
+  {"name":"清炒苋菜","ingredients":["苋菜","蒜"],"seasonings":["盐","油"]},
+
+  {"name":"香菇炒西兰花","ingredients":["香菇","西兰花"],"seasonings":["盐","油","蒜"]},
+  {"name":"香菇炒豆腐","ingredients":["香菇","豆腐"],"seasonings":["盐","油","葱"]},
+  {"name":"番茄炒豆腐","ingredients":["西红柿","豆腐"],"seasonings":["盐","油"]},
+  {"name":"青椒炒豆腐","ingredients":["青椒","豆腐"],"seasonings":["盐","油"]},
+  {"name":"蒜蓉金针菇","ingredients":["金针菇","蒜"],"seasonings":["盐","油"]},
+
+  {"name":"金针菇炒鸡蛋","ingredients":["金针菇","鸡蛋"],"seasonings":["盐","油"]},
+  {"name":"金针菇炒肉","ingredients":["金针菇","猪肉"],"seasonings":["盐","酱油","油"]},
+  {"name":"青椒炒香菇","ingredients":["青椒","香菇"],"seasonings":["盐","油"]},
+  {"name":"胡萝卜炒西兰花","ingredients":["胡萝卜","西兰花"],"seasonings":["盐","油"]},
+  {"name":"西葫芦炒鸡蛋","ingredients":["西葫芦","鸡蛋"],"seasonings":["盐","油"]},
+
+  {"name":"南瓜炒鸡蛋","ingredients":["南瓜","鸡蛋"],"seasonings":["盐","油"]},
+  {"name":"南瓜炖土豆","ingredients":["南瓜","土豆"],"seasonings":["盐","油"]},
+  {"name":"蒜香南瓜","ingredients":["南瓜","蒜"],"seasonings":["盐","油"]},
+  {"name":"冬瓜汤","ingredients":["冬瓜"],"seasonings":["盐","葱"]},
+  {"name":"冬瓜虾皮汤","ingredients":["冬瓜","虾皮"],"seasonings":["盐","葱"]},
+
+  {"name":"冬瓜炒肉","ingredients":["冬瓜","猪肉"],"seasonings":["盐","酱油","油"]},
+  {"name":"西红柿炒土豆片","ingredients":["西红柿","土豆"],"seasonings":["盐","油"]},
+  {"name":"蒜香土豆块","ingredients":["土豆","蒜"],"seasonings":["盐","油"]},
+  {"name":"芹菜炒鸡蛋","ingredients":["芹菜","鸡蛋"],"seasonings":["盐","油"]},
+  {"name":"芹菜炒香菇","ingredients":["芹菜","香菇"],"seasonings":["盐","油"]},
+
+  {"name":"青椒炒木耳","ingredients":["青椒","木耳"],"seasonings":["盐","油"]},
+  {"name":"木耳炒鸡蛋","ingredients":["木耳","鸡蛋"],"seasonings":["盐","油"]},
+  {"name":"木耳炒肉","ingredients":["木耳","猪肉"],"seasonings":["盐","酱油","油"]},
+  {"name":"黄瓜炒木耳","ingredients":["黄瓜","木耳"],"seasonings":["盐","油"]},
+  {"name":"凉拌黄瓜（简）","ingredients":["黄瓜"],"seasonings":["盐","蒜","香油"]},
+
+  {"name":"凉拌西红柿","ingredients":["西红柿"],"seasonings":["糖"]},
+  {"name":"凉拌木耳","ingredients":["木耳"],"seasonings":["盐","蒜","香油"]},
+  {"name":"拍黄瓜","ingredients":["黄瓜"],"seasonings":["盐","蒜","香油"]},
+  {"name":"蒜泥菠菜","ingredients":["菠菜","蒜"],"seasonings":["盐","香油"]},
+  {"name":"蒜泥茄子（凉）","ingredients":["茄子","蒜"],"seasonings":["盐","香油"]}
 ]

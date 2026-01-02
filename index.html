@@ -75,10 +75,26 @@
 
       try {
         const recipes = await loadRecipes();
+        const userSet = new Set(userIngredients);
+
         const candidates = recipes
-          .map(r => ({ recipe: r, ...matchRecipe(r, userIngredients) }))
-          .filter(x => x.missingCount <= 1) // 只保留缺0或缺1的
-          .sort((a, b) => a.missingCount - b.missingCount); // 缺得少排前面
+          .map(r => {
+            const m = matchRecipe(r, userIngredients);
+            // 计算“这道菜用了你输入的哪些食材”
+            const usedFromInput = r.ingredients.filter(ing => userSet.has(ing));
+            return {
+              recipe: r,
+              ...m,
+              usedFromInput,
+              usedCount: usedFromInput.length
+            };
+          })
+          // 规则1：必须至少用到一个你输入的食材
+          .filter(x => x.usedCount >= 1)
+          // 规则2：只保留缺0或缺1
+          .filter(x => x.missingCount <= 1)
+          // 排序：先缺得少，再用得多
+          .sort((a, b) => (a.missingCount - b.missingCount) || (b.usedCount - a.usedCount));
 
         if (candidates.length === 0) {
           output.textContent = "未找到匹配菜品";
@@ -96,14 +112,17 @@
         top5.forEach((item, index) => {
           const li = document.createElement("li");
           const name = item.recipe.name;
-
+          
+          const usedText = `用到：${item.usedFromInput.join("、")}`;
           if (item.missing.length === 0) {
-            li.textContent = `${index + 1}. ${name} ✅（食材齐全）`;
+            li.textContent = `${index + 1}. ${name} ✅（食材齐全；${usedText}）`;
           } else {
-            li.textContent = `${index + 1}. ${name} ⚠️ 缺：${item.missing[0]}`;
+            li.textContent = `${index + 1}. ${name} ⚠️ 缺：${item.missing[0]}（${usedText}）`;
           }
+          
           list.appendChild(li);
         });
+
         
         hint.textContent = "规则：优先推荐食材齐全的，其次推荐只缺 1 个食材的菜。";
 

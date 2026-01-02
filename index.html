@@ -15,7 +15,7 @@
   </style>
 </head>
 <body>
-  <h1>厨房 MVP（最小版本）</h1>
+  <h1>厨房 MVP（报菜名）</h1>
 
   <div class="card">
     <label for="ingredients">输入食材（用逗号分隔）</label>
@@ -43,9 +43,10 @@
       return await res.json();
     }
 
-    function canMake(recipe, userIngredients) {
+    function matchRecipe(recipe, userIngredients) {
       const userSet = new Set(userIngredients);
-      return recipe.ingredients.every(ing => userSet.has(ing));
+      const missing = recipe.ingredients.filter(ing => !userSet.has(ing));
+      return { missing, missingCount: missing.length };
     }
 
     document.getElementById("btn").addEventListener("click", async () => {
@@ -65,17 +66,27 @@
 
       try {
         const recipes = await loadRecipes();
-        const matches = recipes.filter(r => canMake(r, userIngredients));
+        const candidates = recipes
+          .map(r => ({ recipe: r, ...matchRecipe(r, userIngredients) }))
+          .filter(x => x.missingCount <= 1) // 只保留缺0或缺1的
+          .sort((a, b) => a.missingCount - b.missingCount); // 缺得少排前面
 
-        if (matches.length === 0) {
+        if (candidates.length === 0) {
           output.textContent = "未找到匹配菜品";
-          hint.textContent = "当前数据库只有少量菜谱。你可以在 recipes.json 里添加更多。";
+          hint.textContent = "当前规则：只推荐缺0或缺1个食材的菜。你可以输入更多食材，或扩充菜谱库。";
           return;
         }
 
-        // MVP：找到第一个匹配就输出
-        output.textContent = matches[0].name;
-        hint.textContent = `已匹配：${matches[0].ingredients.join(" + ")}`;
+        const best = candidates[0].recipe;
+        const missing = candidates[0].missing;
+
+        output.textContent = best.name;
+
+        if (missing.length === 0) {
+          hint.textContent = `✅ 你已有全部食材：${best.ingredients.join(" + ")}`;
+        } else {
+          hint.textContent = `⚠️ 还缺 1 个食材：${missing[0]}（你已有：${best.ingredients.filter(i => i !== missing[0]).join(" + ")}）`;
+        }
       } catch (e) {
         output.textContent = "出错了";
         hint.textContent = e.message;

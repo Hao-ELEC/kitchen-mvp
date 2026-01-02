@@ -23,7 +23,9 @@
     <button id="btn">生成推荐菜品</button>
 
     <div class="result" id="output"></div>
+    <ul id="list"></ul>
     <div class="hint" id="hint"></div>
+
   </div>
 
   <script>
@@ -77,16 +79,27 @@
           return;
         }
 
-        const best = candidates[0].recipe;
-        const missing = candidates[0].missing;
+        const list = document.getElementById("list");
+        list.innerHTML = ""; // 先清空旧结果
 
-        output.textContent = best.name;
+        const top5 = candidates.slice(0, 5);
 
-        if (missing.length === 0) {
-          hint.textContent = `✅ 你已有全部食材：${best.ingredients.join(" + ")}`;
-        } else {
-          hint.textContent = `⚠️ 还缺 1 个食材：${missing[0]}（你已有：${best.ingredients.filter(i => i !== missing[0]).join(" + ")}）`;
-        }
+        output.textContent = "推荐菜品（最多 5 个）：";
+
+        top5.forEach((item, index) => {
+          const li = document.createElement("li");
+          const name = item.recipe.name;
+
+          if (item.missing.length === 0) {
+            li.textContent = `${index + 1}. ${name} ✅（食材齐全）`;
+          } else {
+            li.textContent = `${index + 1}. ${name} ⚠️ 缺：${item.missing[0]}`;
+          }
+          list.appendChild(li);
+        });
+        
+        hint.textContent = "规则：优先推荐食材齐全的，其次推荐只缺 1 个食材的菜。";
+
       } catch (e) {
         output.textContent = "出错了";
         hint.textContent = e.message;

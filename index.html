@@ -30,14 +30,21 @@
 
   <script>
     function normalizeInput(text) {
-      // 支持中文逗号、英文逗号、顿号、空格
       return text
-        .replace(/，/g, ",")
-        .replace(/、/g, ",")
-        .split(",")
+        // 去掉数字
+        .replace(/[0-9]/g, "")
+        // 把“和”“与”也当分隔
+        .replace(/和|与/g, " ")
+        // 把所有非中文字符变成空格
+        .replace(/[^\u4e00-\u9fa5]/g, " ")
+        // 按空格切分
+        .split(" ")
+        // 去掉前后空格
         .map(s => s.trim())
+        // 去掉空字符串
         .filter(Boolean);
     }
+
 
     async function loadRecipes() {
       const res = await fetch("./recipes.json");
